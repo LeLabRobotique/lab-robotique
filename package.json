@@ -1,0 +1,121 @@
+{
+  "name": "lab-robotique",
+  "productName": "Le Lab Robotique",
+  "version": "2.0.0",
+  "description": "Le Lab Robotique - Codage Visuel Arduino pour les jeunes",
+  "main": "main.js",
+
+  "author": {
+    "name": "Le Lab Robotique",
+    "email": "info@labrobotique.ca"
+  },
+  "homepage": "https://labrobotique.ca",
+  "license": "MIT",
+
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "dev": "electron . --dev --no-sandbox",
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux",
+    "dist:deb": "electron-builder --linux deb",
+    "dist:win": "electron-builder --win",
+    "dist:win-nsis": "electron-builder --win nsis",
+    "dist:mac": "electron-builder --mac",
+    "postinstall": "electron-builder install-app-deps"
+  },
+
+  "dependencies": {
+    "blockly": "^11.2.1",
+    "serialport": "^12.0.0"
+  },
+
+  "devDependencies": {
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8"
+  },
+
+  "build": {
+    "appId": "ca.labrobotique.codagevisuel",
+    "productName": "Le-Lab-Robotique",
+
+    "directories": {
+      "output": "dist"
+    },
+
+    "files": [
+      "**/*",
+      "!dist/**"
+    ],
+
+    "extraResources": [
+      { "from": "resources/arduino", "to": "arduino" },
+      { "from": "resources/arduino-cli.yaml", "to": "arduino-cli.yaml" }
+    ],
+
+    "linux": {
+      "target": [
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Education",
+      "executableName": "lab-robotique",
+      "icon": "assets/icon.png",
+      "desktop": {
+        "Name": "Le Lab Robotique",
+        "Comment": "Codage Visuel Arduino pour les jeunes",
+        "Categories": "Education;Development;IDE;",
+        "StartupWMClass": "Le Lab Robotique"
+      }
+    },
+
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "publisherName": "Le Lab Robotique"
+    },
+
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Le Lab Robotique",
+      "installerSidebar": null,
+      "license": null,
+      "menuCategory": "Le Lab Robotique"
+    },
+
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.education",
+      "icon": "assets/icon.icns"
+    },
+
+    "deb": {
+      "maintainer": "Le Lab Robotique <info@labrobotique.ca>",
+      "depends": [
+        "libgtk-3-0",
+        "libnss3",
+        "libxss1",
+        "libasound2"
+      ],
+      "afterInstall": "scripts/postinst.sh"
+    }
+  }
+}

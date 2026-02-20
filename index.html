@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Lab Robotique - Codage Visuel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- === HEADER === -->
+  <header class="header">
+    <!-- Row 1: Logo + main buttons -->
+    <div class="header-row1">
+      <div class="logo-area">
+        <img src="assets/logo.png" alt="Le Lab Robotique" class="header-logo">
+        <div class="logo-text">
+          <div class="title">Logiciel de Programmation</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-missions" onclick="labApp.showMissions()">
+          🚀 <span data-i18n="btn_missions">Missions</span>
+        </button>
+        <button class="btn btn-examples" onclick="labApp.showExamples()">
+          📦 <span data-i18n="btn_examples">Exemples</span>
+        </button>
+        <button class="btn btn-new" onclick="labApp.newProject()">
+          <span data-i18n="btn_new">Nouveau Projet</span>
+        </button>
+        <button class="btn btn-save" onclick="labApp.saveProject()">
+          <span data-i18n="btn_save">Sauvegarder Projet</span>
+        </button>
+        <button class="btn btn-load" onclick="labApp.loadProjectDialog()">
+          <span data-i18n="btn_load">Charger Projet</span>
+        </button>
+      </div>
+
+      <button class="btn btn-detect" onclick="labApp.detectArduino()">
+        <span data-i18n="btn_detect">Détecter Arduino</span>
+      </button>
+    </div>
+
+    <!-- Row 2: Arduino controls -->
+    <div class="header-row2">
+      <select class="serial-select" id="serialSelect">
+        <option value="" data-i18n="no_arduino">Aucun Arduino Détecté</option>
+      </select>
+      <button class="btn-upload" onclick="labApp.uploadToArduino()">
+        <span data-i18n="btn_upload">Téléverser vers Arduino</span>
+      </button>
+      <button class="btn btn-code-toggle" id="codeToggleBtn" onclick="labApp.toggleCodePanel()">👁️ Afficher code</button>
+    </div>
+  </header>
+
+  <!-- === MAIN CONTENT === -->
+  <main class="main">
+    <!-- Sidebar + Workspace in golden border -->
+    <div class="content-wrapper">
+      <nav class="sidebar" id="sidebar"></nav>
+      <div class="workspace-area">
+        <div id="blocklyDiv"></div>
+      </div>
+    </div>
+
+    <!-- Code Panel -->
+    <div class="code-panel">
+      <div class="code-header">
+        <span data-i18n="code_panel_title">Code Arduino Généré:</span>
+        <div class="code-actions">
+          <button class="code-btn" onclick="labApp.copyCode()" data-i18n="btn_copy">Copier</button>
+          <button class="code-btn" onclick="labApp.exportCode()" data-i18n="btn_export">Exporter .ino</button>
+        </div>
+      </div>
+      <div class="code-body">
+        <pre id="codeOutput"><code>void setup() {
+
+}
+
+void loop() {
+
+}</code></pre>
+      </div>
+      <!-- Serial Monitor (collapsible) -->
+      <div class="serial-monitor" id="serialMonitor">
+        <div class="serial-header" onclick="labApp.toggleSerialPanel()">
+          <span>📟 Moniteur Série</span>
+          <div class="serial-controls" onclick="event.stopPropagation()">
+            <select id="serialBaud" class="serial-baud">
+              <option value="9600" selected>9600</option>
+              <option value="115200">115200</option>
+            </select>
+            <button class="serial-btn" id="serialConnectBtn" onclick="labApp.toggleSerialConnection()">Connecter</button>
+            <button class="serial-btn" onclick="labApp.clearSerialOutput()">Effacer</button>
+          </div>
+        </div>
+        <div class="serial-output" id="serialOutput"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- === EXAMPLES MODAL === -->
+  <div class="modal-overlay" id="examplesModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>📦 <span data-i18n="examples_title">Exemples de Projets</span></h2>
+        <button class="modal-close" onclick="labApp.closeExamples()">&times;</button>
+      </div>
+      <div class="modal-body" id="examplesList"></div>
+    </div>
+  </div>
+  <!-- MISSIONS MODAL -->
+  <div class="modal-overlay" id="missionsModal">
+    <div class="modal modal-missions">
+      <div class="modal-header missions-header">
+        <h2>🚀 <span data-i18n="missions_title">Missions Spatiales</span></h2>
+        <button class="modal-close" onclick="labApp.closeMissions()">&times;</button>
+      </div>
+      <div class="missions-intro">
+        <p>🤖 NOVA : « Bienvenue à bord de L'Étoile Filante, recrue! Les systèmes du vaisseau sont en panne. Répare-les un par un pour nous amener jusqu'à la planète Kepler-442b! »</p>
+      </div>
+      <div class="modal-body" id="missionsList"></div>
+    </div>
+  </div>
+
+  <!-- BRIEFING PANEL -->
+  <div class="briefing-panel" id="briefingPanel">
+    <button class="briefing-toggle" id="briefingToggle" title="Masquer/Afficher la mission">&#9664;</button>
+    <div class="briefing-header">
+      <span class="briefing-title" id="briefingTitle">Mission</span>
+      <div class="briefing-actions">
+        <button class="briefing-btn next-btn" id="nextMissionBtn" onclick="labApp.nextMission()" title="Mission suivante">▶ Suivante</button>
+        <button class="briefing-btn exit-btn" onclick="labApp.exitMission()">&#10005; Quitter</button>
+      </div>
+    </div>
+    <div class="briefing-hints-nav">
+      <button class="hint-nav-btn" id="hintPrevBtn" onclick="labApp.requestPreviousHint()" title="Indice précédent" disabled>&#9664;</button>
+      <button class="briefing-btn hint-btn" onclick="labApp.requestNextHint()">&#128161; <span class="hint-counter" id="hintCounter">0 / 4</span></button>
+      <button class="hint-nav-btn" id="hintNextBtn" onclick="labApp.requestNextHint()" title="Indice suivant">&#9654;</button>
+      <button class="briefing-btn hint-all-btn" onclick="labApp.showAllHints()" title="Voir tous les indices">&#128214; Tous</button>
+    </div>
+    <div class="briefing-body">
+      <div class="briefing-text" id="briefingText"></div>
+      <div class="briefing-objective"><strong>&#127919; Objectif:</strong> <span id="briefingObjective"></span></div>
+      <div class="briefing-hint" id="hintContent"></div>
+      <div class="briefing-validate">
+        <button class="btn-validate" id="validateBtn" onclick="labApp.validateMission()">
+          ✓ Vérifier ma solution
+        </button>
+        <div class="validate-result" id="validateResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success celebration overlay -->
+  <div class="success-overlay" id="successOverlay" onclick="labApp.closeSuccess()">
+    <div class="success-card" onclick="event.stopPropagation()">
+      <div class="success-stars" id="successStars"></div>
+      <div class="success-icon">🏆</div>
+      <h2 class="success-title" id="successTitle">Mission Accomplie!</h2>
+      <p class="success-message" id="successMessage"></p>
+      <div class="success-actions">
+        <button class="btn-success-next" id="successNextBtn" onclick="labApp.successAndNext()">
+          ▶ Mission suivante
+        </button>
+        <button class="btn-success-close" onclick="labApp.closeSuccess()">
+          Continuer ici
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
